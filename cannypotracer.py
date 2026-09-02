@@ -32,6 +32,7 @@ def main():
 
     canny = cv2.Canny(targetImg, 50, 150)
 
+    cv2.imwrite("cannyresult.png", canny)
     cv2.imshow("Canny (Enter any key to close)", canny)
     cv2.waitKey()
     cv2.destroyAllWindows()
@@ -55,7 +56,9 @@ def main():
         for segment1 in plist[1].segments:
             if segment1.is_corner:
                 end1 = segment1.end_point
-                potrace_curve1.write("\n"f"({startfirst.x}+t*({end1.x}-{startfirst.x}), {height - startfirst.y}+t*({height - end1.y}-{height - startfirst.y}))")
+                corner1 = segment1.c
+                potrace_curve1.write("\n"f"({startfirst.x}+t*({corner1.x}-{startfirst.x}), {height - startfirst.y}+t*({height - corner1.y}-{height - startfirst.y}))")
+                potrace_curve1.write("\n"f"({corner1.x}+t*({end1.x}-{corner1.x}), {height - corner1.y}+t*({height - end1.y}-{height - corner1.y}))")
             else:
                 q = segment1.c1
                 w = segment1.c2
@@ -70,7 +73,9 @@ def main():
             for segment in curve.segments:
                 if segment.is_corner:
                     end = segment.end_point
-                    fp.write("\n"f"({startpoint.x}+t*({end.x}-{startpoint.x}), {height - startpoint.y}+t*({height - end.y}-{height - startpoint.y}))")
+                    corner = segment.c
+                    fp.write("\n"f"({startpoint.x}+t*({corner.x}-{startpoint.x}), {height - startpoint.y}+t*({height - corner.y}-{height - startpoint.y}))")
+                    fp.write("\n"f"({corner.x}+t*({end.x}-{corner.x}), {height - corner.y}+t*({height - end.y}-{height - corner.y}))")
                 else:
                     a = segment.c1
                     b = segment.c2
