@@ -1,16 +1,11 @@
 from PIL import Image
 from potrace import Bitmap, POTRACE_TURNPOLICY_MINORITY  
 import cv2
+import json
 
 def main():
     yesOptions = ['yes', 'y']
-    p0 = []
-    p1 = []
-    p2 = []
-    p3 = []
-    c_p0 = []
-    c_p1 = []
-    c_p2 = []
+    curves = []
     
     IMG_PATH = input("image path: ").strip('"\'# ')
     img = cv2.imread(IMG_PATH)
@@ -53,23 +48,27 @@ def main():
         opticurve=True,
         opttolerance=0.2
     )
-    print(plist)
 
     height = img.shape[0]
 
     with open(f"graph.txt", "w") as fp:
         for curve in plist:
+            curve_ = []
             fs = curve.start_point
             startpoint = fs
-            print(f"{fs.x},{fs.y}")
+
             for segment in curve.segments:
+                segment_ = []
                 if segment.is_corner:
                     end = segment.end_point
                     corner = segment.c
 
-                    c_p0.append((startpoint.x, height - startpoint.y))
-                    c_p1.append((corner.x, height - corner.y))
-                    c_p2.append((end.x, height - end.y))
+                    segment_.append({
+                        "type": "corner",
+                        "startpoint": (startpoint.x, height - startpoint.y),
+                        "cornerpoint": (corner.x, height - corner.y),
+                        "endpoint": (end.x, height - end.y)
+                    })
 
                     fp.write("\n"f"({startpoint.x}+t*({corner.x}-{startpoint.x}), {height - startpoint.y}+t*({height - corner.y}-{height - startpoint.y}))")
                     fp.write("\n"f"({corner.x}+t*({end.x}-{corner.x}), {height - corner.y}+t*({height - end.y}-{height - corner.y}))")
@@ -78,16 +77,20 @@ def main():
                     b = segment.c2
                     c = segment.end_point
 
-                    p0.append((startpoint.x, height - startpoint.y))
-                    p1.append((a.x, height - a.y))
-                    p2.append((b.x, height - b.y))
-                    p3.append((c.x, height - c.y))
+                    segment_.append({
+                        "type": "cubic",
+                        "startpoint": (startpoint.x, height - startpoint.y),
+                        "c1": (a.x, height - a.y),
+                        "c2": (b.x, height - b.y),
+                        "endpoint": (c.x, height - c.y)
+                    })
 
                     fp.write("\n"f"((1-t)^3*{startpoint.x}+3*(1-t)^2*t*{a.x}+3*(1-t)*t^2*{b.x}+t^3*{c.x},(1-t)^3*{height - startpoint.y}+3*(1-t)^2*t*{height - a.y}+3*(1-t)*t^2*{height - b.y}+t^3*{height - c.y})")
+                curve_.append(segment_)
                 startpoint = segment.end_point
-
-        print(f'Cornerpoints: \nc_p0: {c_p0} \nc_p1: {c_p1} \nc_p2: {c_p2}')
-        print(f'Cubic bezier points: \np0: {p0} \np1: {p1} \np2: {p2} \np3: {p3}')
+            curves.append(curve_)
+        with open("curve_data.json", "w") as cd:
+            json.dump(curves, cd)
 
 if __name__ == '__main__':
     main()
