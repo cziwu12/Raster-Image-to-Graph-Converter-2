@@ -2,8 +2,24 @@ import cv2
 import numpy
 import matplotlib
 
-tSize = int(input("t: "))
+t = int(input("t: "))
+
+'''
+with open("potrace_curve1", "r") as pl:
+    for bezier in pl:
+        for i in bezier:
+            
+'''
+
+'''
+tSize = 1 / int(input("t: "))
 
 with open("potrace_curve1", "r") as pl:
     for bezier in pl:
-        print(bezier)
+        insert t into bezier
+        find coords
+        store xy coords in np array
+        t += tSize
+            
+            
+'''
