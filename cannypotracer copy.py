@@ -58,17 +58,16 @@ def main():
             startpoint = fs
 
             for segment in curve.segments:
-                segment_ = []
                 if segment.is_corner:
                     end = segment.end_point
                     corner = segment.c
 
-                    segment_.append({
+                    segment_ = {
                         "type": "corner",
                         "startpoint": (startpoint.x, height - startpoint.y),
                         "cornerpoint": (corner.x, height - corner.y),
                         "endpoint": (end.x, height - end.y)
-                    })
+                    }
 
                     fp.write("\n"f"({startpoint.x}+t*({corner.x}-{startpoint.x}), {height - startpoint.y}+t*({height - corner.y}-{height - startpoint.y}))")
                     fp.write("\n"f"({corner.x}+t*({end.x}-{corner.x}), {height - corner.y}+t*({height - end.y}-{height - corner.y}))")
@@ -77,13 +76,13 @@ def main():
                     b = segment.c2
                     c = segment.end_point
 
-                    segment_.append({
+                    segment_ = {
                         "type": "cubic",
                         "startpoint": (startpoint.x, height - startpoint.y),
                         "c1": (a.x, height - a.y),
                         "c2": (b.x, height - b.y),
                         "endpoint": (c.x, height - c.y)
-                    })
+                    }
 
                     fp.write("\n"f"((1-t)^3*{startpoint.x}+3*(1-t)^2*t*{a.x}+3*(1-t)*t^2*{b.x}+t^3*{c.x},(1-t)^3*{height - startpoint.y}+3*(1-t)^2*t*{height - a.y}+3*(1-t)*t^2*{height - b.y}+t^3*{height - c.y})")
                 curve_.append(segment_)
