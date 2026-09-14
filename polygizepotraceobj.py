@@ -28,6 +28,11 @@ with open("curve_data.json", "r") as file:
                     for i in range(1, tsize):
                         t = i / tsize
                         coords.append((segment["startpoint"][0]+t*(segment["cornerpoint"][0]-segment["startpoint"][0]), segment["startpoint"][1]+t*(segment["cornerpoint"][1]-segment["startpoint"][1])))
+                        t += tsteps
+                        print(f't: {t} type: {segment["type"]} : {coords[i-1]}')
+                    t = 0
+                    for i in range(1, tsize):
+                        t = i / tsize
                         coords.append((segment["cornerpoint"][0]+t*(segment["endpoint"][0]-segment["cornerpoint"][0]), segment["cornerpoint"][1]+t*(segment["endpoint"][1]-segment["cornerpoint"][1])))
                         t += tsteps
                         print(f't: {t} type: {segment["type"]} : {coords[i-1]}')
@@ -37,12 +42,18 @@ with open("curve_data.json", "r") as file:
 
 image = np.full((1000, 800, 3), 255, dtype=np.uint8)
 
+arr = np.array(allcoords[0], dtype=np.int32)
+
+'''
 for coord in allcoords:
     arr = np.array(coord, dtype=np.int32)
-    print(arr)
-    cv2.fillPoly(image, arr, (255, 0, 0))
+    #cv2.polylines(image, [arr], True, (255, 0, 0))
+    cv2.fillPoly(image, [arr], (255, 0, 0))
+'''
 
-save = cv2.imwrite("rasterized_ver.png", image)
+cv2.polylines(image, [arr], False, (255, 0, 0))
+    
+save = cv2.imwrite("rasterized_ver1.png", image)
 cv2.imshow("rasterized_ver.png", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
