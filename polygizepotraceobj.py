@@ -40,9 +40,22 @@ with open("curve_data.json", "r") as file:
             poly.write(f'{str(coords)}\n')
             allcoords.append(coords)
 
-image = np.full((1000, 800, 3), 255, dtype=np.uint8)
+image = np.full((1200, 1200, 3), 255, dtype=np.uint8)
 
 arr = np.array(allcoords[0], dtype=np.int32)
+
+Start = tuple(map(int, map(round, allcoords[0][0])))
+End = tuple(map(int, map(round, allcoords[0][-1])))
+
+print(Start)
+print(End)
+
+print("a")
+print(arr.shape)
+print(arr.min(axis=0))
+print(arr.max(axis=0))
+print(arr[0])
+print(arr[-1])
 
 '''
 for coord in allcoords:
@@ -50,14 +63,30 @@ for coord in allcoords:
     #cv2.polylines(image, [arr], True, (255, 0, 0))
     cv2.fillPoly(image, [arr], (255, 0, 0))
 '''
+cv2.polylines(image, [arr], False, (0, 0, 0))
+cv2.circle(image, Start, 6, (0, 0, 255), -1)
+cv2.circle(image, End, 6, (0, 255, 0), -1)
 
-cv2.polylines(image, [arr], False, (255, 0, 0))
+lines = cv2.imwrite("lines.png", image)
+
+cv2.fillPoly(image, [arr], (255, 0, 0))
     
 save = cv2.imwrite("rasterized_ver1.png", image)
 cv2.imshow("rasterized_ver.png", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
+print("b")
+print(image[500, 400])
+print(cv2.boundingRect(arr))
+mask = np.any(image != 255, axis=2)
+ys, xs = np.where(mask)
+
+print(xs.min(), xs.max(), ys.min(), ys.max())
+
+print("arr:", arr.shape)
+print("bbox:", cv2.boundingRect(arr))
+print("outside:", image[500, 400])
 '''
 
 for corrds in polygon_points:

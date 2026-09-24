@@ -1,9 +1,12 @@
-from PIL import Image
+import numpy as np 
 from potrace import Bitmap, POTRACE_TURNPOLICY_MINORITY  
 import cv2
+import json
+from pathlib import Path
 
 def main():
     yesOptions = ['yes', 'y']
+    curves = []
     
     IMG_PATH = input("image path: ").strip('"\'# ')
     img = cv2.imread(IMG_PATH)
@@ -32,6 +35,10 @@ def main():
 
     canny = cv2.Canny(targetImg, 50, 150)
 
+    output_dir = Path(r"C:\Users\notcz\repos\Raster-Image-to-Graph-Converter-2\outputs")
+    canny_output_path = output_dir / "canny_array.npy"
+    np.save(canny_output_path, canny)
+
     cv2.imwrite("cannyresult.png", canny)
     cv2.imshow("Canny (Enter any key to close)", canny)
     cv2.waitKey()
@@ -46,42 +53,54 @@ def main():
         opticurve=True,
         opttolerance=0.2
     )
-    print(plist)
 
     height = img.shape[0]
+    height_dir = output_dir / "imgheight.txt"
+    with open(height_dir, "w") as high:
+        high.write(str(height))
 
-    with open(f"graph.txt", "w") as fp:
-        potrace_curve1 = open("potrace_curve1", "w")
-        startfirst = plist[1].start_point
-        for segment1 in plist[1].segments:
-            if segment1.is_corner:
-                end1 = segment1.end_point
-                corner1 = segment1.c
-                potrace_curve1.write("\n"f"({startfirst.x}+t*({corner1.x}-{startfirst.x}), {height - startfirst.y}+t*({height - corner1.y}-{height - startfirst.y}))")
-                potrace_curve1.write("\n"f"({corner1.x}+t*({end1.x}-{corner1.x}), {height - corner1.y}+t*({height - end1.y}-{height - corner1.y}))")
-            else:
-                q = segment1.c1
-                w = segment1.c2
-                e = segment1.end_point
-                potrace_curve1.write("\n"f"((1-t)^3*{startfirst.x}+3*(1-t)^2*t*{q.x}+3*(1-t)*t^2*{w.x}+t^3*{e.x},(1-t)^3*{height - startfirst.y}+3*(1-t)^2*t*{height - q.y}+3*(1-t)*t^2*{height - w.y}+t^3*{height - e.y})")
-            startfirst = segment1.end_point
-        potrace_curve1.close
+    graph_dir = output_dir / "graph.txt"
+    with open(graph_dir, "w") as fp:
         for curve in plist:
+            curve_ = []
+            print(len(curve))
             fs = curve.start_point
             startpoint = fs
-            print(f"{fs.x},{fs.y}")
+
             for segment in curve.segments:
                 if segment.is_corner:
                     end = segment.end_point
                     corner = segment.c
+
+                    segment_ = {
+                        "type": "corner",
+                        "startpoint": (startpoint.x, height - startpoint.y),
+                        "cornerpoint": (corner.x, height - corner.y),
+                        "endpoint": (end.x, height - end.y)
+                    }
+
                     fp.write("\n"f"({startpoint.x}+t*({corner.x}-{startpoint.x}), {height - startpoint.y}+t*({height - corner.y}-{height - startpoint.y}))")
                     fp.write("\n"f"({corner.x}+t*({end.x}-{corner.x}), {height - corner.y}+t*({height - end.y}-{height - corner.y}))")
                 else:
                     a = segment.c1
                     b = segment.c2
                     c = segment.end_point
+
+                    segment_ = {
+                        "type": "cubic",
+                        "startpoint": (startpoint.x, height - startpoint.y),
+                        "c1": (a.x, height - a.y),
+                        "c2": (b.x, height - b.y),
+                        "endpoint": (c.x, height - c.y)
+                    }
+
                     fp.write("\n"f"((1-t)^3*{startpoint.x}+3*(1-t)^2*t*{a.x}+3*(1-t)*t^2*{b.x}+t^3*{c.x},(1-t)^3*{height - startpoint.y}+3*(1-t)^2*t*{height - a.y}+3*(1-t)*t^2*{height - b.y}+t^3*{height - c.y})")
+                curve_.append(segment_)
                 startpoint = segment.end_point
+            curves.append(curve_)
+        curve_data_dir = output_dir/ "curve_data.json"
+        with open(curve_data_dir, "w") as cd:
+            json.dump(curves, cd)
 
 if __name__ == '__main__':
     main()

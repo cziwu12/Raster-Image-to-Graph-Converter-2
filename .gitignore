@@ -1,1 +1,8 @@
+__pycache__/
+*.py[cod]
+
+.venv/
 .venv
+
+outputs/
+test_files/
