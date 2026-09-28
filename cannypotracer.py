@@ -94,7 +94,7 @@ def main():
                         "endpoint": (c.x, height - c.y)
                     }
 
-                    fp.write("\n"f"((1-t)^3*{startpoint.x}+3*(1-t)^2*t*{a.x}+3*(1-t)*t^2*{b.x}+t^3*{c.x},(1-t)^3*{height - startpoint.y}+3*(1-t)^2*t*{height - a.y}+3*(1-t)*t^2*{height - b.y}+t^3*{height - c.y})")
+                    fp.write(f"((1-t)^3*{startpoint.x}+3*(1-t)^2*t*{a.x}+3*(1-t)*t^2*{b.x}+t^3*{c.x},(1-t)^3*{height - startpoint.y}+3*(1-t)^2*t*{height - a.y}+3*(1-t)*t^2*{height - b.y}+t^3*{height - c.y})\n")
                 curve_.append(segment_)
                 startpoint = segment.end_point
             curves.append(curve_)
