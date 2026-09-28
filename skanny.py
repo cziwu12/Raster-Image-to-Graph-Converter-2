@@ -3,6 +3,44 @@ import numpy as np
 from skan import Skeleton
 from fitCurves.fitCurves import fitCurve
 from pathlib import Path
+from scipy.signal import savgol_filter
+
+def resample_path(points, spacing=1.0):
+    if len(points) < 2:
+        return points
+
+    delta = np.diff(points, axis=0)
+    distances = np.linalg.norm(delta, axis=1)
+
+    cumulative = np.concatenate(([0], np.cumsum(distances)))
+
+    total_length = cumulative[-1]
+
+    if total_length == 0:
+        return points[:1]
+
+    samples = np.arange(0, total_length, spacing)
+
+    if len(samples) == 0 or samples[-1] < total_length:
+        samples = np.append(samples, total_length)
+
+    x = np.interp(samples, cumulative, points[:, 0])
+    y = np.interp(samples, cumulative, points[:, 1])
+
+    return np.column_stack((x, y))
+
+
+def smooth_path(points, window=7, polyorder=2):
+    if len(points) < window:
+        return points
+
+    if window % 2 == 0:
+        window += 1
+
+    x = savgol_filter(points[:, 0], window, polyorder)
+    y = savgol_filter(points[:, 1], window, polyorder)
+
+    return np.column_stack((x, y))
 
 def main():
     yesOptions = ['yes', 'y']
@@ -47,15 +85,18 @@ def main():
 
     print(skeleton.n_paths)
 
-    height = img.shape[0]
+    height = canny.shape[0]
 
     for path_id in range(skeleton.n_paths):
         row_col_points = skeleton.path_coordinates(path_id)
         points = np.column_stack((row_col_points[:, 1] + 0.5, height - row_col_points[:, 0] - 0.5 ))
         paths.append(points)
 
+        points = resample_path(points, spacing=1.0)
+        points = smooth_path(points, window=11, polyorder=2)
+
         if len(points) >= 2:
-            bezier_curves = fitCurve(points, 0.5)
+            bezier_curves = fitCurve(points, 1.7)
             all_beziers.append(bezier_curves)
 
     print(all_beziers[0][0])
