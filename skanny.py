@@ -6,6 +6,11 @@ from pathlib import Path
 from scipy.signal import savgol_filter
 from time import perf_counter
 
+def show_cv2_result(title, cv2_img):
+        cv2.imshow(title, cv2_img)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+
 def resample_path(points, spacing=1.0):
     if len(points) < 2:
         return points
@@ -60,16 +65,25 @@ def main():
         print("Error: Could not load image.")
         exit()
 
-    useResize = input("is resize needed? (Type yes if needed, else just enter any key):  ").lower() in yesOptions
+    useResize = input("is resize needed? (y/n):  ").lower() in yesOptions
     resizedImg = cv2.resize(img, None, fx=0.5, fy=0.5) if useResize else img
 
     gray = cv2.cvtColor(resizedImg, cv2.COLOR_BGR2GRAY)
-    useBlur = input("is blur needed? (Type yes if needed, else just enter any key): ").lower() in yesOptions
+    useBlur = input("is blur needed? (y/n): ").lower() in yesOptions
+
+    debug = input("debug? (y/n): ").lower() in yesOptions
 
     targetImg = (cv2.bilateralFilter(gray, d=4, sigmaColor=140, sigmaSpace=150) if useBlur else gray)
     #targetImg = (cv2.bilateralFilter(gray, d=4, sigmaColor=15, sigmaSpace=25) if useBlur else gray)
 
     canny = cv2.Canny(targetImg, 50, 150)
+
+    if debug == True:
+        show_cv2_result("binary img", gray)
+        if useBlur:
+            show_cv2_result("blur_result", targetImg)
+        show_cv2_result("canny result", canny)
+        cv2.imwrite("cannyresult.png", canny)
 
     cv2.imwrite("cannyresult.png", canny)
 
@@ -100,15 +114,16 @@ def main():
             all_beziers.append(bezier_curves)
             t_fit += perf_counter() - t
 
-    print("coordinates:", t_coordinates)
-    print("resample:    ", t_resample)
-    print("smooth:      ", t_smooth)
-    print("fitCurve:    ", t_fit)
+    if debug == True: 
+        print("coordinates:", t_coordinates)
+        print("resample:    ", t_resample)
+        print("smooth:      ", t_smooth)
+        print("fitCurve:    ", t_fit)
 
     with open("graph_skanny.txt", "w") as graph:
         for segment in all_beziers:
             for bezier in segment:
                 graph.write(f"((1-t)^3*{bezier[0][0]}+3*(1-t)^2*t*{bezier[1][0]}+3*(1-t)*t^2*{bezier[2][0]}+t^3*{bezier[3][0]},(1-t)^3*{bezier[0][1]}+3*(1-t)^2*t*{bezier[1][1]}+3*(1-t)*t^2*{bezier[2][1]}+t^3*{bezier[3][1]})\n")
-
+    print("go to graph_skanny.txt, copy everything and paste it into desmos")
 if __name__ == '__main__':
     main()
