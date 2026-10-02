@@ -9,7 +9,9 @@ A program where it converts an image into a Desmos graph
 - Resampling and Smoothening 
 
 ## Usage
-- Clone this repo and open `skanny.py`
+- Clone this repo `git clone https://github.com/cziwu12/Raster-Image-to-Graph-Converter-2.git` or `git clone git@github.com:cziwu12/Raster-Image-to-Graph-Converter-2.git`
+- Install dependecies `python -m pip install -r requirements.txt`
+- Open `skanny.py`
 - Paste your image path
 - When done, go to `graph_skanny.txt` and copy everything
 - Paste it into Desmos, zoom out to the top right (where x and y are positive) to see the image
