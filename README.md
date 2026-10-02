@@ -1,7 +1,7 @@
 # Raster-Image-to-Graph-Converter-v1.1
 A program where it converts an image into a Desmos graph
 
-![alt text](test_images/testimg1.png)! ![alt text](<Screenshot 2026-10-02 094733.png>)
+![alt text](<README images/testimg1.png>) ![alt text](<README images/testimg1_result.png>)
 
 ## What's Improved
 - Reduced the equation output
