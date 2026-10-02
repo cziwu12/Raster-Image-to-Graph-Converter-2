@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 from skan import Skeleton
 from fitCurves.fitCurves import fitCurve
-from pathlib import Path
 from scipy.signal import savgol_filter
 from time import perf_counter
 

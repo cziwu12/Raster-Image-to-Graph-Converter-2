@@ -1,8 +1,10 @@
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
 
 .venv/
 .venv
 
 outputs/
 test_files/
+test_images2/
